@@ -1,0 +1,13 @@
+
+bayes_root = "D://Desktop//fish//pythonProject//model//bayes.csv"
+array_root = "D://Desktop//fish//pythonProject//dataset//array_sample.csv"
+array_path = "D://Desktop//fish//pythonProject//dataset//array_sample.mat"
+mask_root = "D://Desktop//fish//pythonProject//dataset//mask.csv"
+mask_path = "D://Desktop//fish//pythonProject//dataset//Mask.mat"
+mask_name = "Mask"
+tarin_image = "D://Desktop//fish//pythonProject//dataset//309.bmp"
+test311_image = "D://Desktop//fish//pythonProject//dataset//311.bmp"
+test313_image = "D://Desktop//fish//pythonProject//dataset//313.bmp"
+test315_image = "D://Desktop//fish//pythonProject//dataset//315.bmp"
+test317_image = "D://Desktop//fish//pythonProject//dataset//317.bmp"
+img_dir = "D://Desktop//fish//pythonProject//dataset"
