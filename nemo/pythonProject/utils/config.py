@@ -1,8 +1,8 @@
 
-bayes_root = "D://Desktop//fish//pythonProject//model//bayes.csv"
-array_root = "D://Desktop//fish//pythonProject//dataset//array_sample.csv"
-array_path = "D://Desktop//fish//pythonProject//dataset//array_sample.mat"
-mask_root = "D://Desktop//fish//pythonProject//dataset//mask.csv"
+bayes_root = "E:\aaaacode\nemo\Nemo -Fish\fish\pythonProject\model\bayes.csv"
+array_root = "E://aaaacode//nemo//Nemo -Fish//fish//pythonProject//dataset//array_sample.csv"
+array_path = "E:\aaaacode\nemo\Nemo -Fish\fish\pythonProject\dataset\array_sample.mat"
+mask_root = "E:\aaaacode\nemo\Nemo -Fish\fish\pythonProject\dataset\mask.csv"
 mask_path = "D://Desktop//fish//pythonProject//dataset//Mask.mat"
 mask_name = "Mask"
 tarin_image = "D://Desktop//fish//pythonProject//dataset//309.bmp"
