@@ -11,7 +11,7 @@ from utils.mask import *
 
 img_name = '311.bmp'
 # img_name = ["311.bmp", "313.bmp", "315.bmp", "317.bmp"] # img_dir + "/" + img_sample
-img_dir = 'D:/Desktop/fish/pythonProject/dataset'
+img_dir = 'E:/aaaacode/nemonemo/pythonProject/dataset'
 img = Image.open(config.test311_image)  # 需要改成测试的图像文件名
 bayes = config.bayes_root
 

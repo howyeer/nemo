@@ -5,18 +5,19 @@ import numpy as np
 import PIL.Image as Image
 import matplotlib.pyplot as plt
 from scipy.stats import multivariate_normal
-from utils.get_mask import get_mask
-from utils.tools import pdf, calculateMRV, savepara
+#from utils.get_mask import get_mask
+from utils.tools import pdf, calculateMRV, savepara, histogram, parzen
 
-# 加载文件
+# -----------------加载309样本-----------------
 array = config.array_root
-mask = config.mask_root
 img = Image.open(config.tarin_image)
 with open(array) as f:
     reader = csv.reader(f)
     x = list(reader)
     Array = np.array(x, dtype=numpy.float64)
 
+#-----------------加载mask-----------------
+mask = config.mask_root
 with open(mask) as f:
     reader = csv.reader(f)
     x = list(reader)
@@ -26,7 +27,7 @@ print(Array)
 print(Mask)
 """
 
-# 获取小小鱼的色彩与灰度值
+#-----------------获取小小鱼的色彩与灰度值-----------------
 img_rgb = np.array(img)
 img_gary = np.array(img.convert('L'))
 mask_rgb = np.array([Mask, Mask, Mask]).transpose(1, 2, 0)
@@ -37,16 +38,15 @@ print("gary",np.shape(img_gary))
 print(img_rgb)
 print(img_gary)
 """
-fish_rgb = img_rgb * mask_rgb/255
-fish_gary = img_gary * Mask/255
-# print(fish_gary)
+fish_rgb = img_rgb * mask_rgb/255     #csv文件给的是归一化后的数据
+fish_gary = img_gary * Mask/255       #所以我们也在此将数据归一化
 # print(np.shape(fish_rgb))
 # print("fish_rgb",fish_rgb)
 
 
-# 根据label将红色和白色的像素点分开
-gray_r = []
-gray_w = []
+#-----------------根据label将红色和白色的像素点分开-----------------
+gray_r = []             #r代表类红色的像素点
+gray_w = []             #w代表类白色的像素点
 rgb_r = []
 rgb_w = []
 for i in range(len(Array)):
@@ -59,42 +59,62 @@ for i in range(len(Array)):
 rgb_r = np.array(rgb_r)
 rgb_w = np.array(rgb_w)
 
-# 先验概率
+#-----------------计算先验概率-----------------
 pri_pre_r = len(gray_r)/(len(gray_r)+len(gray_w))
 pri_pre_w = 1-pri_pre_r
 # print(pri_pre_w)
 # print(pri_pre_r)
 
 """
-采用灰度
+-----------------计算灰度值的参数-----------------
 """
-# 用正态分布估计类条件概率密度函数的分布
-
+#-----------------用正态分布估计类条件概率密度函数的分布-----------------
 gr_eql = np.mean(gray_r)
 gw_eql = np.mean(gray_w)
 gr_s = np.std(gray_r)
 gw_s = np.std(gray_w)
 
 
-# 贝叶斯分类
+#-----------------贝叶斯分类-----------------
+# gray_result = np.zeros_like(img_gary)
+# x, y = np.shape(fish_gary)
+# for i in range(x):
+#     for j in range(y):
+#         if (fish_gary[i][j] != 0):
+#            # print(fish_gary[i][j])
+#             pdf_r = pdf(fish_gary[i][j], gr_eql, gr_s)
+#             pdf_w = pdf(fish_gary[i][j], gw_eql, gw_s)
+#            # print("i",i,"j",j, pdf_r , pdf_w)
+#             gray_result[i][j] = fish_gary[i][j]
+#         if fish_gary[i][j] == 0:
+#             gray_result[i][j] = 0
+#         elif pri_pre_r*pdf_r > pri_pre_w*pdf_w:
+#             gray_result[i][j] = 100
+#        #     #print("hong")
+#         else:
+#             gray_result[i][j] = 255
+#             # print("bai")
+
+#-----------------无参数估计贝叶斯分类-----------------
 gray_result = np.zeros_like(img_gary)
-for i in range(len(fish_gary)):
-    for j in range(len(fish_gary[0])):
+x, y = np.shape(fish_gary)
+for i in range(x):
+    for j in range(y):
         if (fish_gary[i][j] != 0):
            # print(fish_gary[i][j])
-            pdf_r = pdf(fish_gary[i][j], gr_eql, gr_s)
-            pdf_w = pdf(fish_gary[i][j], gw_eql, gw_s)
+            pdf_r = parzen(fish_gary[i][j], gray_r, gr_s)
+            pdf_w = parzen(fish_gary[i][j], gray_w, gw_s)
            # print("i",i,"j",j, pdf_r , pdf_w)
             gray_result[i][j] = fish_gary[i][j]
         if fish_gary[i][j] == 0:
             gray_result[i][j] = 0
         elif pri_pre_r*pdf_r > pri_pre_w*pdf_w:
-            gray_result[i][j] = 255
+            gray_result[i][j] = 100
        #     #print("hong")
         else:
-            gray_result[i][j] = 100
+            gray_result[i][j] = 255
             # print("bai")
-# 结果可视化
+#-----------------结果可视化-----------------
 # 像素分割与原图对比
 plt.figure(1)
 pic_gary = plt.subplot(1, 1, 1)
@@ -104,13 +124,19 @@ plt.figure(2)
 pic_garyresult = plt.subplot(1, 1, 1)
 pic_garyresult.set_title('gray result')
 pic_garyresult.imshow(gray_result, cmap='gray')
-# 函数图像化
+#类条件概率密度函数图像
 plt.figure(3)
 pdf_rsample = []
 pdf_wsample = []
+# for i in range(1000):
+#     pdf_rsample.append(pdf(i/1000, gr_eql, gr_s))
+#     pdf_wsample.append(pdf(i/1000, gw_eql, gw_s))
+# for i in range(1000):
+#     pdf_rsample.append(histogram(i/1000, gray_r))
+#     pdf_wsample.append(histogram(i/1000, gray_w))
 for i in range(1000):
-    pdf_rsample.append(pdf(i/1000, gr_eql, gr_s))
-    pdf_wsample.append(pdf(i/1000, gw_eql, gw_s))
+    pdf_rsample.append(parzen(i/1000, gray_r, gr_s))
+    pdf_wsample.append(parzen(i/1000, gray_w, gw_s))
 pic_pdf = plt.subplot(1, 1, 1)
 pic_pdf.set_title('p(x|w)')
 x = np.arange(0, 1, 1/1000)
@@ -148,8 +174,8 @@ cov_r = calculateMRV(rgb_r, cov_r, rgb_r_eql)
 cov_w = calculateMRV(rgb_w, cov_w, rgb_w_eql)
 # 3维比较
 rgb_result = np.zeros_like(fish_rgb)
-for i in range(len(fish_rgb)):
-    for j in range(len(fish_rgb[0])):
+for i in range(x):
+    for j in range(y):
         if np.sum(fish_rgb[i][j]) == 0:
             continue
         elif pri_pre_r*multivariate_normal.pdf(fish_rgb[i][j], rgb_r_eql, cov_r) > pri_pre_w*multivariate_normal.pdf(fish_rgb[i][j], rgb_w_eql, cov_w):
